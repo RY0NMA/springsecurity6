@@ -49,9 +49,16 @@ public class SecurityConfig {
 		return new InMemoryUserDetailsManager(admin,user);
 	}*/
 	
+	/*
 	@Bean
 	PasswordEncoder passwordEncoder() {
-		return NoOpPasswordEncoder.getInstance();
+		return new BCryptPasswordEncoder();
 	}
+	*/
+	
+	@Bean
+    public BCryptPasswordEncoder encodePassword() {
+        return new BCryptPasswordEncoder();
+    }
 	
 }
