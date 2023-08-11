@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/*ESTA CLASE NO SE DEBE USAR CON JWT*/
 
 public class ApiKeyFilter extends OncePerRequestFilter{
 	

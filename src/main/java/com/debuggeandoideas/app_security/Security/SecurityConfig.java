@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +26,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
+@EnableWebSecurity(debug = true)
 public class SecurityConfig {
 	
 	/*Authentication por default*/
@@ -39,8 +43,10 @@ public class SecurityConfig {
 	*/
 	
 	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-		http.addFilterBefore(new ApiKeyFilter(), BasicAuthenticationFilter.class);
+	SecurityFilterChain securityFilterChain(HttpSecurity http, JWTValidationFilter jwtValidationFilter) throws Exception{
+		/*Se borra porque ya no se va a utilizar el apikey filter */
+		//http.addFilterBefore(new ApiKeyFilter(), BasicAuthenticationFilter.class);
+		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		var requestHandler = new CsrfTokenRequestAttributeHandler();
 		requestHandler.setCsrfRequestAttributeName("_csrf");
 		http.authorizeHttpRequests(auth ->
@@ -49,15 +55,16 @@ public class SecurityConfig {
 				.requestMatchers("/balance").hasAuthority("DESARROLLADOR")
 				.requestMatchers("/accounts").hasAuthority("CONSULTOR")
 				.requestMatchers("/cards").hasAnyAuthority("CONSULTOR","DESARROLLADOR")
-				.requestMatchers("/welcome","about").permitAll())//tambien pudo haber quedado como .anyRequest().permitAll())
+				.requestMatchers("/welcome","about","/authenticate").permitAll())//tambien pudo haber quedado como .anyRequest().permitAll())
 			.formLogin(Customizer.withDefaults())
 			.httpBasic(Customizer.withDefaults())
 			.cors(cors -> cors.configurationSource(corseConfigurationsSource())) // Aplica la configuración CORS
 			.csrf(csrf -> csrf
 					.csrfTokenRequestHandler(requestHandler)
-					.ignoringRequestMatchers("/welcome","/about")
+					.ignoringRequestMatchers("/welcome","/about","/authenticate")
 					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
 			.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);
+		http.addFilterAfter(jwtValidationFilter, BasicAuthenticationFilter.class);
 		/*Para eliminar errores del CORS*/
 		//.cors(cors-> corseConfigurationsSource())
 		//.csrf().disable();
@@ -106,5 +113,12 @@ public class SecurityConfig {
 		var source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);
 		return source;
+	}
+	
+	@Bean
+	AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
+		return configuration.getAuthenticationManager();
+		
+		
 	}
 }
