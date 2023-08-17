@@ -1,10 +1,15 @@
 package com.debuggeandoideas.app_security.Entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -25,12 +30,15 @@ public class Usuario {
 	public int empleado;
 	@Column(name="CORREO")
 	public String email;
+	/*
 	@Column(name="ID_ROL")
 	public int idRole;
 	@Column(name="NOMBRE_ROL")
-	public String rol;
-	public Usuario(int idUser, String name, String user, String pass, int empleado, String email, int idRole,
-			String rol) {
+	*/
+	@OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ID_USUARIO")
+    private List<Roles> roles;
+	public Usuario(int idUser, String name, String user, String pass, int empleado, String email, List<Roles> roles) {
 		super();
 		this.idUser = idUser;
 		this.name = name;
@@ -38,8 +46,7 @@ public class Usuario {
 		this.pass = pass;
 		this.empleado = empleado;
 		this.email = email;
-		this.idRole = idRole;
-		this.rol = rol;
+		this.roles = roles;
 	}
 	public Usuario() {
 		super();
@@ -80,24 +87,16 @@ public class Usuario {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public int getIdRole() {
-		return idRole;
+	public List<Roles> getRoles() {
+		return roles;
 	}
-	public void setIdRole(int idRole) {
-		this.idRole = idRole;
-	}
-	public String getRol() {
-		return rol;
-	}
-	public void setRol(String rol) {
-		this.rol = rol;
+	public void setRoles(List<Roles> roles) {
+		this.roles = roles;
 	}
 	@Override
 	public String toString() {
 		return "Usuario [idUser=" + idUser + ", name=" + name + ", user=" + user + ", pass=" + pass + ", empleado="
-				+ empleado + ", email=" + email + ", idRole=" + idRole + ", rol=" + rol + "]";
+				+ empleado + ", email=" + email + ", roles=" + roles + "]";
 	}
-	
-	
 	
 }

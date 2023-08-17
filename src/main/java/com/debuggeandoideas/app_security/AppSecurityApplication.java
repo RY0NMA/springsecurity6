@@ -1,5 +1,6 @@
 package com.debuggeandoideas.app_security;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,7 +19,8 @@ public class AppSecurityApplication implements CommandLineRunner{
 	
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println("BCrypt password"+passwordEncoder.encode("1234"));
+		System.out.println("User: "+passwordEncoder.encode("1234"));
+		System.out.println("client: "+passwordEncoder.encode("secret"));
 		
 	}
 	
